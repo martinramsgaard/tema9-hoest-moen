@@ -1,0 +1,34 @@
+---
+import type { Kunstner } from "../types";
+
+interface Props {
+  kunstner: Kunstner;
+  eager?: boolean;
+}
+
+const { kunstner, eager = false } = Astro.props as Props;
+---
+
+<article class="artist-card">
+  <a class="artist-card__link" href={`/kunstnere/${kunstner.slug}/`}>
+    <div class="artist-card__image-wrap">
+      <img
+        class="artist-card__image"
+        src={kunstner.billede_url}
+        alt={`${kunstner.navn} på Høst Møn`}
+        width="1080"
+        height="720"
+        loading={eager ? "eager" : "lazy"}
+      />
+    </div>
+    <div class="artist-card__content">
+      <div>
+        <p class="artist-card__meta">
+          {kunstner.spilledag} · <time datetime={`${kunstner.spilledato}T${kunstner.spilletid}`}>{kunstner.spilletid}</time>
+        </p>
+        <h2 class="artist-card__title">{kunstner.navn}</h2>
+      </div>
+      <span class="artist-card__arrow" aria-hidden="true">↗</span>
+    </div>
+  </a>
+</article>

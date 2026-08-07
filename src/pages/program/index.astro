@@ -1,0 +1,92 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArtistCard from "../../components/ArtistCard.astro";
+import type { Kunstner } from "../../types";
+
+const supabaseUrl = import.meta.env.SUPABASE_URL;
+const supabaseKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY;
+
+const response = await fetch(
+  `${supabaseUrl}/rest/v1/kunstnere?select=*&order=sortering.asc`,
+  {
+    headers: {
+      apikey: supabaseKey,
+    },
+  },
+);
+
+if (!response.ok) {
+  throw new Error(`Kunne ikke hente programmet: ${response.status}`);
+}
+
+const kunstnere = (await response.json()) as Kunstner[];
+---
+
+<BaseLayout
+  title="Program | Høst Møn"
+  description="Se programmet for Høst Møn og filtrér koncerterne efter fredag og lørdag."
+>
+  <header class="page-hero">
+    <div class="page-hero__inner wrapper">
+      <div>
+        <p class="eyebrow">30.–31. august 2024</p>
+        <h1 class="display-title">Program</h1>
+      </div>
+      <p class="lead">
+        To dage med alternativ musik ved Hårbølle Strand. Vælg en dag, eller se
+        hele programmet samlet.
+      </p>
+    </div>
+  </header>
+
+  <section class="section" aria-label="Festivalprogram">
+    <div class="wrapper">
+      <div class="filter-bar" aria-label="Filtrér programmet">
+        <button class="filter-button" type="button" data-filter="alle" aria-pressed="true">Alle</button>
+        <button class="filter-button" type="button" data-filter="fredag" aria-pressed="false">Fredag</button>
+        <button class="filter-button" type="button" data-filter="lørdag" aria-pressed="false">Lørdag</button>
+      </div>
+
+      <p id="program-status" class="eyebrow" aria-live="polite">Viser alle {kunstnere.length} koncerter</p>
+
+      <ul class="artist-grid" id="program-grid">
+        {kunstnere.map((kunstner, index) => (
+          <li class="program-item" data-day={kunstner.spilledag.toLowerCase()}>
+            <ArtistCard kunstner={kunstner} eager={index < 3} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  const filterButtons = document.querySelectorAll("[data-filter]");
+  const programItems = document.querySelectorAll(".program-item");
+  const status = document.querySelector("#program-status");
+
+  filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const selectedDay = button.dataset.filter;
+      let visibleCount = 0;
+
+      filterButtons.forEach((item) => {
+        item.setAttribute("aria-pressed", String(item === button));
+      });
+
+      programItems.forEach((item) => {
+        const shouldShow = selectedDay === "alle" || item.dataset.day === selectedDay;
+        item.hidden = !shouldShow;
+
+        if (shouldShow) {
+          visibleCount += 1;
+        }
+      });
+
+      if (status) {
+        const label = selectedDay === "alle" ? "alle" : selectedDay;
+        status.textContent = `Viser ${visibleCount} koncerter · ${label}`;
+      }
+    });
+  });
+</script>

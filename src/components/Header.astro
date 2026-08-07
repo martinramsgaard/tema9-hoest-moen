@@ -1,0 +1,21 @@
+---
+const pathname = Astro.url.pathname;
+const isHome = pathname === "/";
+const isProgram = pathname.startsWith("/program") || pathname.startsWith("/kunstnere");
+---
+
+<header class="site-header">
+  <div class="site-header__inner wrapper">
+    <a class="site-header__logo" href="/" aria-label="Høst Møn – gå til forsiden">
+      <img src="/logo/hoest-moen-logo-light.svg" alt="Høst Møn" width="220" height="67" />
+    </a>
+
+    <nav class="site-nav" aria-label="Primær navigation">
+      <ul>
+        <li><a href="/" aria-current={isHome ? "page" : undefined}>Forside</a></li>
+        <li><a href="/program/" aria-current={isProgram ? "page" : undefined}>Program</a></li>
+        <li><a href="/#praktisk">Praktisk</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>

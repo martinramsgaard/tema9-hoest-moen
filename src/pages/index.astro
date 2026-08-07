@@ -1,0 +1,100 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import VideoHero from "../components/VideoHero.astro";
+import ArtistCard from "../components/ArtistCard.astro";
+import type { Kunstner } from "../types";
+
+const supabaseUrl = import.meta.env.SUPABASE_URL;
+const supabaseKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY;
+
+const response = await fetch(
+  `${supabaseUrl}/rest/v1/kunstnere?select=*&order=sortering.asc&limit=4`,
+  {
+    headers: {
+      apikey: supabaseKey,
+    },
+  },
+);
+
+if (!response.ok) {
+  throw new Error(`Kunne ikke hente kunstnere: ${response.status}`);
+}
+
+const kunstnere = (await response.json()) as Kunstner[];
+---
+
+<BaseLayout title="Høst Møn | Musikfestival ved havet">
+  <VideoHero />
+
+  <section class="section section--sand" aria-labelledby="intro-title">
+    <div class="wrapper intro-grid">
+      <div>
+        <p class="eyebrow">Musikfestival på Møn</p>
+        <h2 id="intro-title" class="display-title">Sommerens sidste skrig</h2>
+      </div>
+
+      <div class="intro-copy">
+        <p class="lead">
+          Høst Møn samler nysgerrige musikelskere til to dage med nye navne,
+          intense koncerter og havudsigt ved Hårbølle Strand.
+        </p>
+        <p>
+          Her er plads til at opdage musik, møde mennesker og blive hængende,
+          når sensommeren bliver til nat.
+        </p>
+        <a class="text-link" href="/program/">Gå på opdagelse i programmet <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="program-title">
+    <div class="wrapper">
+      <div class="program-heading">
+        <div>
+          <p class="eyebrow">Udvalgte koncerter</p>
+          <h2 id="program-title" class="section-title">På scenen</h2>
+        </div>
+        <a class="text-link" href="/program/">Se hele programmet <span aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="artist-grid artist-grid--preview">
+        {kunstnere.map((kunstner, index) => (
+          <ArtistCard kunstner={kunstner} eager={index < 2} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--orange" aria-label="Høst Møns stemning">
+    <div class="wrapper">
+      <p class="statement">Musik.<br />Havudsigt.<br />Fællesskab.</p>
+    </div>
+  </section>
+
+  <section id="praktisk" class="section" aria-labelledby="praktisk-title">
+    <div class="wrapper">
+      <p class="eyebrow">Det vigtigste samlet</p>
+      <h2 id="praktisk-title" class="section-title">Praktisk</h2>
+
+      <div class="info-grid">
+        <article class="info-card">
+          <span class="info-card__number">01</span>
+          <h3>Hvornår?</h3>
+          <p>Fredag 30. og lørdag 31. august 2024. Musik fra eftermiddag til sent.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="info-card__number">02</span>
+          <h3>Hvor?</h3>
+          <p>Hårbølle Strand på Møn – tæt på hav, natur og campingmuligheder.</p>
+        </article>
+
+        <article class="info-card">
+          <span class="info-card__number">03</span>
+          <h3>Hvad?</h3>
+          <p>En intim festival med alternativ musik, fællesskab, mad og kolde drikke.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,53 @@
+<section class="video-hero" aria-labelledby="hero-heading">
+  <video
+    id="hero-video"
+    class="video-hero__media"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="metadata"
+    poster="/images/hero-poster.webp"
+  >
+    <source src="/video/hero-hoest-moen.webm" type="video/webm" />
+    <source src="/video/hero-hoest-moen.mp4" type="video/mp4" />
+  </video>
+  <div class="video-hero__overlay"></div>
+
+  <div class="video-hero__content wrapper">
+    <h1 id="hero-heading">
+      <img class="video-hero__logo" src="/logo/hoest-moen-logo-light.svg" alt="Høst Møn" width="800" height="241" />
+    </h1>
+    <p class="video-hero__meta">30.–31. august 2024<br />Hårbølle Strand, Møn</p>
+    <div class="video-hero__actions">
+      <a class="button-link" href="/program/">Se programmet <span aria-hidden="true">→</span></a>
+      <button id="video-control" class="video-control" type="button" aria-pressed="false">Pause video</button>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  const video = document.querySelector("#hero-video");
+  const control = document.querySelector("#video-control");
+
+  if (video instanceof HTMLVideoElement && control instanceof HTMLButtonElement) {
+    const updateControl = () => {
+      control.textContent = video.paused ? "Afspil video" : "Pause video";
+      control.setAttribute("aria-pressed", String(video.paused));
+    };
+
+    control.addEventListener("click", () => {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+      updateControl();
+    });
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      video.pause();
+      updateControl();
+    }
+  }
+</script>

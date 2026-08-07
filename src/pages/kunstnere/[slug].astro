@@ -1,0 +1,70 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import type { Kunstner } from "../../types";
+
+interface Props {
+  kunstner: Kunstner;
+}
+
+export async function getStaticPaths() {
+  const supabaseUrl = import.meta.env.SUPABASE_URL;
+  const supabaseKey = import.meta.env.SUPABASE_PUBLISHABLE_KEY;
+
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/kunstnere?select=*&order=sortering.asc`,
+    {
+      headers: {
+        apikey: supabaseKey,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Kunne ikke hente kunstnersider: ${response.status}`);
+  }
+
+  const kunstnere = (await response.json()) as Kunstner[];
+
+  return kunstnere.map((kunstner) => ({
+    params: { slug: kunstner.slug },
+    props: { kunstner },
+  }));
+}
+
+const { kunstner } = Astro.props as Props;
+const dato = new Intl.DateTimeFormat("da-DK", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(new Date(`${kunstner.spilledato}T12:00:00`));
+---
+
+<BaseLayout
+  title={`${kunstner.navn} | Høst Møn`}
+  description={`${kunstner.navn} spiller ${kunstner.spilledag.toLowerCase()} på Høst Møn.`}
+>
+  <article class="artist-detail">
+    <div class="artist-detail__inner">
+      <div class="artist-detail__image-wrap">
+        <img
+          class="artist-detail__image"
+          src={kunstner.billede_url}
+          alt={`${kunstner.navn} på scenen`}
+          width="1080"
+          height="720"
+        />
+      </div>
+
+      <div class="artist-detail__content">
+        <p class="eyebrow">
+          {kunstner.spilledag} · <time datetime={`${kunstner.spilledato}T${kunstner.spilletid}`}>{dato} kl. {kunstner.spilletid}</time>
+        </p>
+        <h1 class="artist-detail__title">{kunstner.navn}</h1>
+        <p class="artist-detail__description">{kunstner.beskrivelse}</p>
+        <a class="text-link artist-detail__back" href="/program/">
+          <span aria-hidden="true">←</span> Tilbage til programmet
+        </a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
